@@ -9,6 +9,9 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ActiveUserDate } from '../interfaces/active-user-data.interface';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { randomUUID } from 'node:crypto';
+import { RedisService } from '../../redis/redis.service';
+import { Role } from '../../users/enum/role.enum';
 
 @Injectable()
 export class AuthenticationService {
@@ -16,6 +19,7 @@ export class AuthenticationService {
     private readonly databaseService: DatabaseService,
     private readonly hashingService: HashingService,
     @Inject(jwtConfig.KEY) private readonly jwtConfigrations: ConfigType<typeof jwtConfig>,
+    private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -34,12 +38,19 @@ export class AuthenticationService {
   }
 
   public async generateTokens(user: Users) {
+    const refreshTokenId = randomUUID();
     const [accessToken, refreshToken] = await Promise.all([
       this.signToken<Partial<ActiveUserDate>>(user.id, this.jwtConfigrations.accessTokenTtl, {
         email: user.email,
+        role: user.userType === 'client' ? Role.Client : Role.Freelancer,
       }),
-      this.signToken(user.id, this.jwtConfigrations.refreshTokenTtl),
+
+      this.signToken(user.id, this.jwtConfigrations.refreshTokenTtl, {
+        refreshTokenId,
+      }),
     ]);
+
+    await this.redisService.insert(user.id, refreshTokenId);
 
     return {
       accessToken,
@@ -87,14 +98,13 @@ export class AuthenticationService {
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
-      const { sub } = await this.jwtService.verifyAsync<Pick<ActiveUserDate, 'sub'>>(
-        refreshTokenDto.refreshToken,
-        {
-          issuer: this.jwtConfigrations.issuer,
-          secret: this.jwtConfigrations.secret,
-          audience: this.jwtConfigrations.audience,
-        },
-      );
+      const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
+        Pick<ActiveUserDate, 'sub'> & { refreshTokenId: string }
+      >(refreshTokenDto.refreshToken, {
+        issuer: this.jwtConfigrations.issuer,
+        secret: this.jwtConfigrations.secret,
+        audience: this.jwtConfigrations.audience,
+      });
 
       const user = await this.databaseService.users.findUnique({
         where: { id: sub },
@@ -102,6 +112,13 @@ export class AuthenticationService {
 
       if (!user) {
         throw new BadRequestException('we can not find a user with this refresh token');
+      }
+
+      const isValid = await this.redisService.validate(user.id, refreshTokenId);
+      if (isValid) {
+        await this.redisService.invalidate(user.id);
+      } else {
+        throw new UnauthorizedException('Refresh token is invalid');
       }
 
       return this.generateTokens(user);
