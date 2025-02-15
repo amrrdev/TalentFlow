@@ -10,9 +10,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { AccessTokenGuard } from './authentication/guards/access-token.guard';
 import { AuthenticationGuard } from './authentication/guards/authentication.guard';
+import { RedisModule } from '../redis/redis.module';
+import { RoleGuard } from './authorization/guards/role.guard';
 
 @Module({
   imports: [
+    RedisModule,
     DatabaseModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
 
@@ -27,6 +30,10 @@ import { AuthenticationGuard } from './authentication/guards/authentication.guar
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard,
     },
     AuthenticationService,
     AccessTokenGuard,
