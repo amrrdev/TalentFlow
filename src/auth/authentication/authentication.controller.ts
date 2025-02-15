@@ -4,6 +4,7 @@ import { AuthenticationService } from './authentication.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 @Auth(AuthType.None)
@@ -20,5 +21,11 @@ export class AuthenticationController {
   @HttpCode(HttpStatus.OK)
   signIn(@Body() signInDto: SignInDto) {
     return this.authenticationService.signIn(signInDto);
+  }
+
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authenticationService.refreshToken(refreshTokenDto);
   }
 }

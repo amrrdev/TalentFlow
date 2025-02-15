@@ -1,12 +1,14 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { HashingService } from '../hashing/hashing.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Users } from '@prisma/client';
 import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { ActiveUserDate } from '../interfaces/active-user-data.interface';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -17,7 +19,7 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
+  async signIn(signInDto: SignInDto): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.databaseService.users.findUnique({
       where: {
         email: signInDto.email,
@@ -28,21 +30,36 @@ export class AuthenticationService {
       throw new BadRequestException('Invalid email or password, try again');
     }
 
-    const accessToken = this.jwtService.sign(
-      {
-        sub: user.id,
+    return await this.generateTokens(user);
+  }
+
+  public async generateTokens(user: Users) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<ActiveUserDate>>(user.id, this.jwtConfigrations.accessTokenTtl, {
         email: user.email,
+      }),
+      this.signToken(user.id, this.jwtConfigrations.refreshTokenTtl),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
+    return this.jwtService.sign(
+      {
+        sub: userId,
+        ...payload,
       },
       {
         secret: this.jwtConfigrations.secret,
         audience: this.jwtConfigrations.audience,
         issuer: this.jwtConfigrations.issuer,
-        expiresIn: this.jwtConfigrations.accessTokenTtl,
+        expiresIn,
       },
     );
-    return {
-      accessToken,
-    };
   }
 
   async signUp(signUpDto: SignUpDto): Promise<Prisma.UsersCreateInput> {
@@ -65,7 +82,31 @@ export class AuthenticationService {
       data: signUpDto,
     });
 
-    // TODO: Generate access token and refresh token
     return newUser;
+  }
+
+  async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const { sub } = await this.jwtService.verifyAsync<Pick<ActiveUserDate, 'sub'>>(
+        refreshTokenDto.refreshToken,
+        {
+          issuer: this.jwtConfigrations.issuer,
+          secret: this.jwtConfigrations.secret,
+          audience: this.jwtConfigrations.audience,
+        },
+      );
+
+      const user = await this.databaseService.users.findUnique({
+        where: { id: sub },
+      });
+
+      if (!user) {
+        throw new BadRequestException('we can not find a user with this refresh token');
+      }
+
+      return this.generateTokens(user);
+    } catch (err) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }
