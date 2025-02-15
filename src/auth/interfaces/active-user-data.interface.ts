@@ -1,3 +1,5 @@
+import { Role } from '../../users/enum/role.enum';
+
 export interface ActiveUserDate {
   /**
    * the "subject",  whom the token refer to
@@ -9,4 +11,9 @@ export interface ActiveUserDate {
    * the subject's (user) email
    */
   email: string;
+
+  /**
+   * the subject's (user) role
+   */
+  role: Role;
 }
