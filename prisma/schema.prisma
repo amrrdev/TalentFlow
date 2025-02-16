@@ -16,10 +16,60 @@ model Users {
   userType UserType
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  project Projects[]
+  bid Bids[]
   @@index([email])
+}
+
+model Projects {
+  id Int @default(autoincrement()) @id
+  title String @db.VarChar(250)
+  description String
+  category    String // Backend Development | Frontend
+  skills      Json  // ["NestJS", "TypeScript", "PostgreSQL", "Stripe"],
+  budget Decimal @db.Decimal(10, 2)
+  deadline DateTime?
+  status ProjectStatus @default(open)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  user Users @relation(fields: [clientId], references: [id])
+  clientId Int 
+
+  bid Bids[]
+  @@index([status])
+}
+
+model Bids {
+  id Int @default(autoincrement()) @id
+  project Projects @relation(fields: [projectId], references: [id])
+  freelancer Users @relation(fields: [freelancerId], references: [id]) 
+  projectId Int
+  freelancerId Int
+  amount Decimal @db.Decimal(10, 2)
+  estimatedWork String @db.VarChar(100)
+  coverLetter String
+  cv String
+  status BidStatus @default(pending)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([freelancerId, projectId])
+}
+
+enum ProjectStatus {
+  open
+  in_progress
+  completed
+  closed
 }
 
 enum UserType {
   client
   freelancer
+}
+
+enum BidStatus {
+  pending
+  accepted
+  rejected
 }
