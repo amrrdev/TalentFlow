@@ -14,7 +14,7 @@ export class OpenAiService {
   constructor(
     @Inject(openAiConfig.KEY) private readonly openaiConfigrations: ConfigType<typeof openAiConfig>,
   ) {}
-
+  // TODO: save the suggestion in the db
   async suggestBid(createBidDto: CreateBidDto, allBidsOnProject: Prisma.BidsGetPayload<{}>[]) {
     if (allBidsOnProject.length === 0) {
       return { message: 'Your bid is within the normal range' };
