@@ -13,6 +13,7 @@ import { RedisService } from './redis.service';
         return new Redis({
           port: parseInt(redisConfigrations.port ?? '6379', 10),
           host: redisConfigrations.host,
+          maxRetriesPerRequest: null,
         });
       },
       inject: [redisConfig.KEY],
