@@ -6,7 +6,9 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { RedisModule } from './redis/redis.module';
 import { UsersModule } from './users/users.module';
-import { OpenAiModule } from './integrations/open-ai/open-ai.module';
+import { QueueModule } from './integrations/queue/queue.module';
+import { MailModule } from './integrations/mail/mail.module';
+import { GroqModule } from './integrations/grok/groq.module';
 
 @Module({
   imports: [
@@ -15,7 +17,9 @@ import { OpenAiModule } from './integrations/open-ai/open-ai.module';
     AuthModule,
     RedisModule,
     UsersModule,
-    OpenAiModule,
+    QueueModule,
+    MailModule,
+    GroqModule,
   ],
   controllers: [AppController],
   providers: [AppService],
