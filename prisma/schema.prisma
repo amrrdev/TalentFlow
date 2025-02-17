@@ -18,6 +18,7 @@ model Users {
   updatedAt DateTime @updatedAt
   project Projects[]
   bid Bids[]
+  Proposal Proposals[]
   @@index([email])
 }
 
@@ -35,7 +36,7 @@ model Projects {
   deletedAt DateTime?
   user Users @relation(fields: [clientId], references: [id])
   clientId Int 
-
+  proposal Proposals[]
   bid Bids[]
   @@index([status])
 }
@@ -44,17 +45,37 @@ model Bids {
   id Int @default(autoincrement()) @id
   project Projects @relation(fields: [projectId], references: [id])
   freelancer Users @relation(fields: [freelancerId], references: [id]) 
+  proposal Proposals?
   projectId Int
   freelancerId Int
   amount Decimal @db.Decimal(10, 2)
   estimatedWork String @db.VarChar(100)
   coverLetter String
+  aiAsuggestions String?
+  experience String
   cv String
   status BidStatus @default(pending)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([freelancerId, projectId])
 }
+
+
+model Proposals {
+  id Int @default(autoincrement()) @id
+  user Users @relation(fields: [freelancerId], references: [id])
+  freelancerId Int
+  project Projects @relation(fields: [projectId], references: [id])
+  projectId Int
+  bid Bids @relation(fields: [bidId], references: [id])
+  bidId Int
+  status ProposalStatus @default(pending)
+  proposalUrl String
+  additionalDerails String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([bidId])
+} 
 
 enum ProjectStatus {
   open
@@ -66,6 +87,12 @@ enum ProjectStatus {
 enum UserType {
   client
   freelancer
+}
+
+enum ProposalStatus {
+  pending 
+  accepted 
+  rejected 
 }
 
 enum BidStatus {
