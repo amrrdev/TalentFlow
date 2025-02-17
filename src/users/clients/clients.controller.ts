@@ -58,4 +58,12 @@ export class ClientsController {
   ) {
     return this.clientsService.selectBid(clientId, projectId, selectBidDto);
   }
+
+  @Get('bids/:projectId/suggestions')
+  suggetForSelectBestBid(
+    @ActiveUser('sub') clientId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
+  ) {
+    return this.clientsService.bidRecommendationsOnMyProject(projectId);
+  }
 }

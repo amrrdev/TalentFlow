@@ -9,10 +9,17 @@ import { DatabaseService } from '../../database/database.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { SelectBidDto } from './dto/select-bid.dto';
+import { MailService } from '../../integrations/mail/mail.service';
+import { EmailType } from '../../integrations/mail/enums/email-type.enum';
+import { GroqService } from '../../integrations/grok/groq.service';
 
 @Injectable()
 export class ClientsService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly mailService: MailService,
+    private readonly gorqService: GroqService,
+  ) {}
 
   async getAllProjects(clientId: number) {
     return await this.databaseService.projects.findMany({
@@ -129,12 +136,12 @@ export class ClientsService {
         id: { in: selectBidDto.ids },
         projectId,
       },
+      include: { freelancer: true },
     });
 
     if (bids.length < selectBidDto.ids.length) {
       throw new BadRequestException('Invalid selection: Some bids do not exist');
     }
-
     try {
       await this.databaseService.bids.updateMany({
         where: {
@@ -145,13 +152,64 @@ export class ClientsService {
           status: 'accepted',
         },
       });
-      return { message: 'Bids accepted successfully.' };
 
-      // TODO: Notify accepted users via email using Nodemailer and BullMQ for queue processing
+      await this.databaseService.bids.updateMany({
+        where: {
+          id: {
+            notIn: selectBidDto.ids,
+          },
+          projectId,
+        },
+        data: {
+          status: 'rejected',
+        },
+      });
+
+      const registedBids = await this.databaseService.bids.findMany({
+        where: {
+          id: {
+            notIn: selectBidDto.ids,
+          },
+          projectId,
+        },
+        include: {
+          freelancer: true,
+        },
+      });
+
+      for (const bid of bids) {
+        this.mailService.sendEmail(EmailType.AcceptedBid, bid.freelancer.email);
+      }
+
+      for (const rBid of registedBids) {
+        this.mailService.sendEmail(EmailType.RejectedBid, rBid.freelancer.email);
+      }
+
+      return { message: 'Bids accepted successfully.' };
     } catch (err) {
       throw new InternalServerErrorException(
         'An error occurred while updating the bids. Please try again later.',
       );
+    }
+  }
+
+  async bidRecommendationsOnMyProject(projectId: number) {
+    const allBidsOnProject = await this.databaseService.bids.findMany({
+      where: { projectId },
+      include: { project: true },
+    });
+
+    if (allBidsOnProject.length === 0) {
+      return { message: 'Your bid is within the normal range' };
+    }
+    const systemPrompt =
+      'You are a highly experienced freelance bidding advisor. Your role is to assist clients by evaluating multiple bids for a project, considering key factors like cost, experience, quality, and timeline. Provide clear, actionable recommendations based on these evaluations';
+    const userPrompt = `After reviewing the following bids for the project: ${JSON.stringify(allBidsOnProject, null, 2)}, please provide your expert recommendations on the top 2-3 bids that offer the best value for the client. Consider factors such as cost-effectiveness, quality of the work, and the proposed timeline for completion. Based on these aspects, suggest the most suitable options for the client to choose, ensuring they receive the most optimal combination of value and efficiency.`;
+
+    try {
+      return await this.gorqService.getGroqChatCompletion(systemPrompt, userPrompt);
+    } catch (err) {
+      throw new BadRequestException('ال ai مريح شوية ');
     }
   }
 }
