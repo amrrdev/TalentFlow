@@ -2,13 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { DatabaseService } from '../../database/database.service';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { UpdateBidDto } from './dto/update-bid.dto';
-import { OpenAiService } from '../../integrations/open-ai/open-ai.service';
+import { GroqService } from '../../integrations/grok/groq.service';
+import { CreateProposalDto } from './proposals/dto/create-proposal.dto';
 
 @Injectable()
 export class FreelancersService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly openaiService: OpenAiService,
+    private readonly groqService: GroqService,
   ) {}
 
   async createBid(freelancerId: number, projectId: number, createBidDto: CreateBidDto) {
@@ -74,10 +75,27 @@ export class FreelancersService {
     }
   }
 
-  // TODO: find a better way, may make the openAi service came by herself.
-  async getSuggestions(projectId: number, createBidDto: CreateBidDto) {
+  async getSuggestionsOnMyBid(projectId: number, createBidDto: CreateBidDto) {
     const allBidsOnProject = await this.getAllBidsOnProject(projectId);
-    return await this.openaiService.suggestBid(createBidDto, allBidsOnProject);
+
+    if (allBidsOnProject.length === 0) {
+      return { message: 'Your bid is within the normal range' };
+    }
+
+    const amoutBids = allBidsOnProject.map(bid => Number(bid.amount));
+    const { amount, estimatedWork } = createBidDto;
+
+    const systemPrompt =
+      'You are a freelance bidding assistant agent. Your role is to evaluate new bids in the context of past bid data, considering factors like cost, estimated work, and timeline. Your advice should help the client assess whether the new bid is reasonable or requires adjustments.';
+    const userPrompt = `Based on the following previous bids: ${amoutBids.join(', ')}, 
+    and the new bid details: amount: ${amount}, estimated work duration: ${estimatedWork} days, and the corresponding cost for the work, 
+    evaluate whether this new bid is fair in comparison. Provide an assessment of whether it is reasonably priced or if adjustments are needed, and explain your reasoning `;
+
+    try {
+      return await this.groqService.getGroqChatCompletion(systemPrompt, userPrompt);
+    } catch (err) {
+      throw new BadRequestException('ال ai مريح شوية ');
+    }
   }
 
   async getAllBidsOnProject(projectId: number) {

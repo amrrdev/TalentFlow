@@ -62,6 +62,6 @@ export class FreelancersController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() createBidDto: CreateBidDto,
   ) {
-    return this.freelancersService.getSuggestions(projectId, createBidDto);
+    return this.freelancersService.getSuggestionsOnMyBid(projectId, createBidDto);
   }
 }
