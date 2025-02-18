@@ -99,6 +99,5 @@ Best regards,
       text,
       subject,
     });
-    console.log(`Email job added to queue for ${to}`);
   }
 }

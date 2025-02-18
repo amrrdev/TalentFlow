@@ -18,8 +18,8 @@ export class MailProcessor extends WorkerHost {
       service: 'gmail',
       host: 'smtp.gmail.com',
       auth: {
-        user: mailConfigrations.gmailUsername,
-        pass: mailConfigrations.gmailPassword,
+        user: this.mailConfigrations.gmailUsername,
+        pass: this.mailConfigrations.gmailPassword,
       },
     });
   }
