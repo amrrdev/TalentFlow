@@ -7,12 +7,16 @@ import {
 import { DatabaseService } from '../../../database/database.service';
 import { MailService } from '../../../integrations/mail/mail.service';
 import { EmailType } from '../../../integrations/mail/enums/email-type.enum';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class ClientProposalService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly mailService: MailService,
+    @InjectQueue('contract-queue') private readonly contractQueue: Queue,
+    @InjectQueue('chat-queue') private readonly chatQueue: Queue,
   ) {}
 
   async proposalsOnClientProject(projectId: number, clientId: number) {
@@ -141,6 +145,21 @@ export class ClientProposalService {
     for (const proposal of allProposals) {
       if (proposal.status === 'accepted') {
         this.mailService.sendEmail(EmailType.AcceptedProposal, proposal.user.email);
+
+        await Promise.all([
+          this.contractQueue.add('contract-queue', {
+            projectId,
+            clientId,
+            freelancerId: proposal.freelancerId,
+          }),
+          this.chatQueue.add('chat-queue', {
+            clientId,
+            freelancerId: proposal.freelancerId,
+          }),
+        ]);
+
+        console.log('contract aded to the queue');
+        console.log('chat creation added to the queue');
       } else if (proposal.status === 'rejected') {
         this.mailService.sendEmail(EmailType.RejectedProposal, proposal.user.email);
       }
