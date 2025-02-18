@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { QueueModule } from './integrations/queue/queue.module';
 import { MailModule } from './integrations/mail/mail.module';
 import { GroqModule } from './integrations/grok/groq.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GroqModule } from './integrations/grok/groq.module';
     QueueModule,
     MailModule,
     GroqModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
