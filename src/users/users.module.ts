@@ -10,9 +10,10 @@ import { ProposalService } from './freelancers/proposals/proposal.service';
 import { ProposalController } from './freelancers/proposals/proposal.controller';
 import { ClientProposalService } from './clients/proposal/client-proposal.service';
 import { ClientProposalController } from './clients/proposal/client-proposal.controller';
+import { QueueModule } from '../integrations/queue/queue.module';
 
 @Module({
-  imports: [DatabaseModule, MailModule, GroqModule],
+  imports: [DatabaseModule, MailModule, GroqModule, QueueModule],
   providers: [FreelancersService, ClientsService, ProposalService, ClientProposalService],
   controllers: [
     FreelancersController,
