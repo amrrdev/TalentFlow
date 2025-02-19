@@ -1,0 +1,1035 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "description": "Creates a new user account.",
+        "operationId": "AuthenticationController_signUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered."
+          },
+          "400": {
+            "description": "Invalid input data."
+          }
+        },
+        "summary": "User registration",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "description": "Authenticates a user and returns access tokens.",
+        "operationId": "AuthenticationController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully authenticated."
+          },
+          "401": {
+            "description": "Invalid email or password."
+          }
+        },
+        "summary": "User login",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh-token": {
+      "post": {
+        "description": "Refreshes the access token using a valid refresh token.",
+        "operationId": "AuthenticationController_refreshToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New access token generated."
+          },
+          "403": {
+            "description": "Invalid or expired refresh token."
+          }
+        },
+        "summary": "Refresh access token",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/freelancers/bids/{projectId}": {
+      "post": {
+        "operationId": "FreelancersController_createBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBidDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bid created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a bid for a project",
+        "tags": [
+          "Freelancer Bids"
+        ]
+      },
+      "patch": {
+        "operationId": "FreelancersController_updateBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBidDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bid updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an existing bid",
+        "tags": [
+          "Freelancer Bids"
+        ]
+      },
+      "delete": {
+        "operationId": "FreelancersController_deleteBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bid deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a freelancer bid",
+        "tags": [
+          "Freelancer Bids"
+        ]
+      },
+      "get": {
+        "operationId": "FreelancersController_getFreelancerBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bid retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a freelancer bid for a project",
+        "tags": [
+          "Freelancer Bids"
+        ]
+      }
+    },
+    "/api/v1/freelancers/bids/{projectId}/suggestions": {
+      "post": {
+        "operationId": "FreelancersController_getSuggestions",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBidDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bid suggestions retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get suggestions on a freelancer bid",
+        "tags": [
+          "Freelancer Bids"
+        ]
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "operationId": "ClientsController_getAllProjects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all projects of the authenticated client",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "post": {
+        "operationId": "ClientsController_createProject",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new project",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{id}": {
+      "patch": {
+        "operationId": "ClientsController_updateProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project to update",
+            "schema": {
+              "example": 5,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a project",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "delete": {
+        "operationId": "ClientsController_deleteProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project to delete",
+            "schema": {
+              "example": 3,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a project",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/api/v1/projects/bids/{projectId}": {
+      "get": {
+        "operationId": "ClientsController_getAllBidsOnProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 7,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all bids on a specific project",
+        "tags": [
+          "Projects"
+        ]
+      },
+      "post": {
+        "operationId": "ClientsController_selectBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 7,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectBidDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select a bid for a project",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/api/v1/projects/bids/{projectId}/suggestions": {
+      "get": {
+        "operationId": "ClientsController_suggetForSelectBestBid",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 7,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get suggestions for selecting the best bid",
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/api/v1/freelancers/proposal/{projectId}": {
+      "post": {
+        "operationId": "ProposalController_createProposal",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProposalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Proposal created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit a proposal for a project",
+        "tags": [
+          "Proposals"
+        ]
+      },
+      "patch": {
+        "operationId": "ProposalController_updateProposal",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProposalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Proposal updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an existing proposal",
+        "tags": [
+          "Proposals"
+        ]
+      },
+      "delete": {
+        "operationId": "ProposalController_deleteProposal",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proposal deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a proposal",
+        "tags": [
+          "Proposals"
+        ]
+      },
+      "get": {
+        "operationId": "ProposalController_getProposal",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proposal retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retrieve a freelancer's proposal for a project",
+        "tags": [
+          "Proposals"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectId}/proposals": {
+      "get": {
+        "operationId": "ClientProposalController_proposalsOnClientProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all proposals for a project",
+        "tags": [
+          "Project Proposal"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectId}/proposals/{proposalId}/accept": {
+      "patch": {
+        "operationId": "ClientProposalController_acceptFinalProposal",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "proposalId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the proposal",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept a final proposal for a project",
+        "tags": [
+          "Project Proposal"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectId}/proposals/{proposalId}/chat": {
+      "get": {
+        "operationId": "ClientProposalController_getChatId",
+        "parameters": [
+          {
+            "name": "proposalId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the proposal",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the project",
+            "schema": {
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get chat ID for a proposal",
+        "tags": [
+          "Project Proposal"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TalentFlow",
+    "description": "TalentFlow API enables clients to post projects and receive bids from freelancers. \n      It integrates AI-driven recommendations to help freelancers optimize their bids and \n      assists clients in selecting the best proposals. The platform includes real-time \n      notifications, contract creation, and a WebSocket-based communication system \n      between clients and freelancers.\n",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user.",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user.",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email address. Must be a valid email format.",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password. Must be at least 8 characters long.",
+            "example": "StrongP@ssw0rd"
+          },
+          "userType": {
+            "type": "string",
+            "description": "User role, which determines the account type. Can be either \"client\" or \"freelancer\".",
+            "enum": [
+              "client",
+              "freelancer"
+            ],
+            "example": "client"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "userType"
+        ]
+      },
+      "SignInDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address.",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password (min 8 chars).",
+            "example": "StrongP@ssw0rd"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token issued during authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "CreateBidDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Bid amount offered by the freelancer",
+            "example": 500
+          },
+          "estimatedWork": {
+            "type": "string",
+            "description": "Estimated work duration (e.g., \"2 weeks\")",
+            "example": "2 weeks"
+          },
+          "coverLetter": {
+            "type": "string",
+            "description": "Cover letter explaining why the freelancer is suitable for the project",
+            "example": "I have 5 years of experience in web development..."
+          },
+          "cv": {
+            "type": "string",
+            "description": "URL of the freelancer’s CV",
+            "example": "https://example.com/my-cv.pdf"
+          },
+          "experience": {
+            "type": "string",
+            "description": "Brief experience details of the freelancer",
+            "example": "3 years of experience in full-stack development"
+          }
+        },
+        "required": [
+          "amount",
+          "estimatedWork",
+          "coverLetter",
+          "cv",
+          "experience"
+        ]
+      },
+      "UpdateBidDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Updated bid amount",
+            "example": 600
+          },
+          "coverLetter": {
+            "type": "string",
+            "description": "Updated cover letter",
+            "example": "I have additional experience in backend development..."
+          },
+          "cv": {
+            "type": "string",
+            "description": "Updated CV URL",
+            "example": "https://example.com/new-cv.pdf"
+          },
+          "estimatedWork": {
+            "type": "string",
+            "description": "Updated estimated work duration",
+            "example": "3 weeks"
+          }
+        }
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the project",
+            "example": "Web Development Project"
+          },
+          "description": {
+            "type": "string",
+            "description": "A detailed description of the project",
+            "example": "Build a full-stack web application"
+          },
+          "budget": {
+            "type": "number",
+            "description": "The budget for the project in USD",
+            "example": 500
+          },
+          "category": {
+            "type": "string",
+            "description": "The category of the project",
+            "example": "Web Development"
+          },
+          "skills": {
+            "description": "A list of required skills for the project",
+            "example": [
+              "JavaScript",
+              "NestJS",
+              "PostgreSQL"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deadline": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The deadline for project completion (ISO8601 format)",
+            "example": "2024-12-31T23:59:59Z"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "budget",
+          "category",
+          "skills"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Updated project title",
+            "example": "New Website Development"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated project description",
+            "example": "Develop a responsive web app"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Updated project budget",
+            "example": 1500
+          },
+          "category": {
+            "type": "string",
+            "description": "Updated project category",
+            "example": "Web Development"
+          },
+          "skills": {
+            "description": "Updated required skills",
+            "example": [
+              "React",
+              "Node.js"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Updated project deadline",
+            "example": "2024-12-31",
+            "format": "date"
+          }
+        }
+      },
+      "SelectBidDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Array of bid IDs to be selected",
+            "example": [
+              1,
+              2,
+              3
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "CreateProposalDto": {
+        "type": "object",
+        "properties": {
+          "proposalUrl": {
+            "type": "string",
+            "description": "URL of the proposal document",
+            "example": "https://example.com/proposal.pdf"
+          },
+          "additionalDerails": {
+            "type": "string",
+            "description": "Additional details about the proposal",
+            "example": "This proposal includes revised project timelines and milestones."
+          }
+        },
+        "required": [
+          "proposalUrl"
+        ]
+      },
+      "UpdateProposalDto": {
+        "type": "object",
+        "properties": {
+          "proposalUrl": {
+            "type": "string",
+            "description": "Updated URL of the proposal document",
+            "example": "https://example.com/updated-proposal.pdf"
+          },
+          "additionalDerails": {
+            "type": "string",
+            "description": "Updated additional details about the proposal",
+            "example": "Revised milestones and new deliverables."
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,13 +16,18 @@ import { CreateBidDto } from './dto/create-bid.dto';
 import { Role } from '../enum/role.enum';
 import { Roles } from '../../auth/authorization/decorators/role.decorator';
 import { UpdateBidDto } from './dto/update-bid.dto';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('freelancers/bids')
+@ApiTags('Freelancer Bids')
+@ApiBearerAuth()
 @Roles(Role.Freelancer)
+@Controller('freelancers/bids')
 export class FreelancersController {
   constructor(private readonly freelancersService: FreelancersService) {}
 
   @Post(':projectId')
+  @ApiOperation({ summary: 'Create a bid for a project' })
+  @ApiResponse({ status: 201, description: 'Bid created successfully' })
   createBid(
     @ActiveUser('sub') freelancerId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -32,6 +37,8 @@ export class FreelancersController {
   }
 
   @Patch(':projectId')
+  @ApiOperation({ summary: 'Update an existing bid' })
+  @ApiResponse({ status: 200, description: 'Bid updated successfully' })
   updateBid(
     @ActiveUser('sub') freelancerId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -41,6 +48,8 @@ export class FreelancersController {
   }
 
   @Delete(':projectId')
+  @ApiOperation({ summary: 'Delete a freelancer bid' })
+  @ApiResponse({ status: 200, description: 'Bid deleted successfully' })
   deleteBid(
     @ActiveUser('sub') freelancerId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -49,6 +58,8 @@ export class FreelancersController {
   }
 
   @Get(':projectId')
+  @ApiOperation({ summary: 'Get a freelancer bid for a project' })
+  @ApiResponse({ status: 200, description: 'Bid retrieved successfully' })
   getFreelancerBid(
     @ActiveUser('sub') freelancerId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -58,6 +69,8 @@ export class FreelancersController {
 
   @Post(':projectId/suggestions')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get suggestions on a freelancer bid' })
+  @ApiResponse({ status: 200, description: 'Bid suggestions retrieved successfully' })
   getSuggestions(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() createBidDto: CreateBidDto,
