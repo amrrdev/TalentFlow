@@ -11,6 +11,7 @@ import { RedisService } from './redis.service';
       provide: 'REDIS_CLIENT',
       useFactory: (redisConfigrations: ConfigType<typeof redisConfig>) => {
         return new Redis({
+          password: redisConfigrations.password,
           port: parseInt(redisConfigrations.port ?? '6379', 10),
           host: redisConfigrations.host,
           maxRetriesPerRequest: null,
