@@ -10,6 +10,7 @@ import { QueueModule } from './integrations/queue/queue.module';
 import { MailModule } from './integrations/mail/mail.module';
 import { GroqModule } from './integrations/grok/groq.module';
 import { ChatModule } from './chat/chat.module';
+import { GateWayModule } from './chat/gateway/gateway.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ChatModule } from './chat/chat.module';
     MailModule,
     GroqModule,
     ChatModule,
+    GateWayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
