@@ -22,4 +22,12 @@ export class ClientProposalController {
   ) {
     return this.clientProposalService.acceptFinalProposal(projectId, clientId, proposalId);
   }
+
+  @Get(':projectId/proposals/:proposalId/chat')
+  getChatId(
+    @ActiveUser('sub') clientId: number,
+    @Param('proposalId', ParseIntPipe) proposalId: number,
+  ) {
+    return this.clientProposalService.getChatId(clientId, proposalId);
+  }
 }

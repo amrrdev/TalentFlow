@@ -9,12 +9,14 @@ import { MailService } from '../../../integrations/mail/mail.service';
 import { EmailType } from '../../../integrations/mail/enums/email-type.enum';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ChatService } from '../../../chat/chat.service';
 
 @Injectable()
 export class ClientProposalService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly mailService: MailService,
+    private readonly chatService: ChatService,
     @InjectQueue('contract-queue') private readonly contractQueue: Queue,
     @InjectQueue('chat-queue') private readonly chatQueue: Queue,
   ) {}
@@ -172,5 +174,9 @@ export class ClientProposalService {
         status: 'accepted',
       },
     };
+  }
+
+  async getChatId(clientId: number, proposalId: number) {
+    return await this.chatService.getChatId(clientId, proposalId);
   }
 }
