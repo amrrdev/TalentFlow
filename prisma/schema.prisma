@@ -19,6 +19,11 @@ model Users {
   project Projects[]
   bid Bids[]
   Proposal Proposals[]
+  message Messages[]
+  chatsAsClient Chat[] @relation("ClientsChat")
+  chatsAsFreelancer Chat[] @relation("FreelancerChat")
+  freelancerContracts  Contracts[] @relation("Freelancer")
+  clientContracts Contracts[] @relation("Client")
   @@index([email])
 }
 
@@ -38,6 +43,7 @@ model Projects {
   clientId Int 
   proposal Proposals[]
   bid Bids[]
+  contracts Contracts?
   @@index([status])
 }
 
@@ -76,6 +82,60 @@ model Proposals {
   updatedAt DateTime @updatedAt
   @@unique([bidId])
 } 
+
+
+model Contracts {
+  id Int @default(autoincrement()) @id
+  project Projects @relation(fields: [projectId], references: [id])
+  projectId Int @unique
+
+  freelancer Users @relation("Freelancer",fields: [freelancerId], references: [id])
+  freelancerId Int
+  
+  client Users @relation("Client",fields: [clientId], references: [id])
+  clientId Int
+
+  status ContratcStatus @default(active)
+  projectDuration String
+  projectBudget Decimal @db.Decimal(10, 2)
+  projectDescription String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  startDate       DateTime 
+  endDate         DateTime?
+}
+
+model Chat {
+  id Int @default(autoincrement()) @id
+  client Users @relation("ClientsChat", fields: [clientId], references: [id])
+  clientId Int
+  freelancer Users @relation("FreelancerChat", fields: [freelancerId], references: [id])
+  freelancerId Int
+  messages Messages[]
+
+  @@index([clientId])
+  @@index([freelancerId])
+  @@unique([clientId, freelancerId])
+}
+
+model Messages {
+  id Int @default(autoincrement()) @id
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+  sender Users @relation(fields: [senderId], references: [id])
+  senderId Int
+  content String @db.VarChar(1000)
+  createdAt DateTime @default(now())
+  @@index([chatId])
+  @@index([createdAt])
+}
+
+
+enum ContratcStatus {
+  active
+  completed
+  terminated
+}
 
 enum ProjectStatus {
   open
