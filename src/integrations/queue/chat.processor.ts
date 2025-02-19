@@ -7,10 +7,14 @@ export class ChatProcessor extends WorkerHost {
   constructor(private readonly chatService: ChatService) {
     super();
   }
+
   async process(job: Job, token?: string): Promise<any> {
     const { clientId, freelancerId } = job.data;
-    console.log(`triggerring chat-chat-queue, chatId: ${clientId}, clientId: ${freelancerId}`);
-    await this.chatService.createChat(clientId, freelancerId);
+
+    console.log(`Triggering chat-queue: clientId=${clientId}, freelancerId=${freelancerId}`);
+
+    const chatId = await this.chatService.createChat(clientId, freelancerId);
+    return chatId;
   }
 
   @OnWorkerEvent('failed')
