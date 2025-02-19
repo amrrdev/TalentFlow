@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { RedisModule } from '../../redis/redis.module';
 import { MailProcessor } from '../mail/mail.processor';
@@ -9,6 +9,7 @@ import { ContractProcessor } from '../../users/clients/proposal/contract.process
 import { DatabaseModule } from '../../database/database.module';
 import { ChatProcessor } from './chat.processor';
 import { ChatModule } from '../../chat/chat.module';
+import { MessagesProcessor } from './messages.processor';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { ChatModule } from '../../chat/chat.module';
     DatabaseModule,
     ConfigModule.forFeature(mailConfig),
     RedisModule,
-    ChatModule,
+
     BullModule.forRootAsync({
       imports: [RedisModule],
       useFactory: (redisClient: Redis) => ({
@@ -35,9 +36,12 @@ import { ChatModule } from '../../chat/chat.module';
       {
         name: 'chat-queue',
       },
+      {
+        name: 'messages-queue',
+      },
     ),
   ],
-  providers: [MailProcessor, ContractProcessor, ChatProcessor],
-  exports: [BullModule],
+  providers: [MailProcessor, ContractProcessor, ChatProcessor, MessagesProcessor],
+  exports: [BullModule, MessagesProcessor],
 })
 export class QueueModule {}
