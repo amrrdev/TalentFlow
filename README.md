@@ -28,6 +28,12 @@
 
 ---
 
+## 🌐 Production API
+
+The production version of TalentFlow is live and accessible at:  
+👉 **[https://talentflow-production.up.railway.app/api](https://talentflow-production.up.railway.app/api)**
+
+---
 ## 🛠 Tech Stack
 
 | Layer             | Technology              |
@@ -41,7 +47,7 @@
 
 ---
 
-## 📦 Installation & Setup
+## 📦 Installation & Setup (Local Development)
 
 ### 1. Clone the Repository
 
@@ -80,9 +86,3 @@ npx prisma migrate dev
 ```bash
 npm run start:dev
 ```
-
----
-
-## 🌐 Access
-
-Once started, visit [http://localhost:3000](http://localhost:3000) to explore TalentFlow and connect freelancers with businesses efficiently.
